@@ -17,11 +17,28 @@ public class TigerTextConfiguration {
         return get("tigertext.api.secret");
     }
 
+    public static String getApiServerUrl() {
+        return get("tigertext.api.server.url", "https://api.tigertext.me");
+    }
+
+    public static int getApiServerPort() {
+        return getInt("tigertext.api.server.port", 443);
+    }
 
 
     ////////////////////
     /// Internal methods
     ////////////////////
+
+    private static int getInt(String key, int defaultValue) {
+        String value = get(key);
+        return isEmpty(value) ? defaultValue : Integer.parseInt(value);
+    }
+
+    private static String get(String key, String defaultValue) {
+        String value = get(key);
+        return isEmpty(value) ? defaultValue : value;
+    }
 
     private static String get(String key) {
         if (ensurePropertiesLoaded()) {
@@ -48,5 +65,9 @@ public class TigerTextConfiguration {
         }
 
         return properties.size() > 0;
+    }
+
+    private static boolean isEmpty(String s) {
+        return s == null || s.isEmpty();
     }
 }
