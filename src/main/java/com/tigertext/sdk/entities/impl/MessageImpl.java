@@ -1,9 +1,12 @@
 package com.tigertext.sdk.entities.impl;
 
+import com.tigertext.sdk.entities.Attachment;
 import com.tigertext.sdk.entities.Message;
+import com.tigertext.sdk.entities.MessageData;
 import com.tigertext.sdk.entities.MessageStatus;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Zvika on 1/27/15.
@@ -19,9 +22,12 @@ public class MessageImpl implements Message {
     private int ttl;
     private boolean dor;
     private MessageStatus status;
+    private List<Attachment> attachments;
+    private List<MessageData> messageData;
 
     public MessageImpl(String id, String sender, String senderOrganization, String recipient, String recipientOrganization,
-                       Date creationTime, String body, int ttl, boolean dor, MessageStatus status) {
+                       Date creationTime, String body, int ttl, boolean dor, MessageStatus status,
+                       List<Attachment> attachments, List<MessageData> messageData) {
         this.id = id;
         this.sender = sender;
         this.senderOrganization = senderOrganization;
@@ -32,6 +38,8 @@ public class MessageImpl implements Message {
         this.ttl = ttl;
         this.dor = dor;
         this.status = status;
+        this.attachments = attachments;
+        this.messageData = messageData;
     }
 
     @Override
@@ -85,6 +93,16 @@ public class MessageImpl implements Message {
     }
 
     @Override
+    public List<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    @Override
+    public List<MessageData> getMessageData() {
+        return messageData;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -93,10 +111,12 @@ public class MessageImpl implements Message {
 
         if (dor != message.dor) return false;
         if (ttl != message.ttl) return false;
+        if (attachments != null ? !attachments.equals(message.attachments) : message.attachments != null) return false;
         if (body != null ? !body.equals(message.body) : message.body != null) return false;
         if (creationTime != null ? !creationTime.equals(message.creationTime) : message.creationTime != null)
             return false;
         if (id != null ? !id.equals(message.id) : message.id != null) return false;
+        if (messageData != null ? !messageData.equals(message.messageData) : message.messageData != null) return false;
         if (recipient != null ? !recipient.equals(message.recipient) : message.recipient != null) return false;
         if (recipientOrganization != null ? !recipientOrganization.equals(message.recipientOrganization) : message.recipientOrganization != null)
             return false;
@@ -120,6 +140,8 @@ public class MessageImpl implements Message {
         result = 31 * result + ttl;
         result = 31 * result + (dor ? 1 : 0);
         result = 31 * result + (status != null ? status.hashCode() : 0);
+        result = 31 * result + (attachments != null ? attachments.hashCode() : 0);
+        result = 31 * result + (messageData != null ? messageData.hashCode() : 0);
         return result;
     }
 
@@ -136,6 +158,8 @@ public class MessageImpl implements Message {
                 ", ttl=" + ttl +
                 ", dor=" + dor +
                 ", status=" + status +
+                ", attachments=" + attachments +
+                ", messageData=" + messageData +
                 '}';
     }
 }

@@ -1,6 +1,7 @@
 package com.tigertext.sdk.entities;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Zvika on 1/27/15.
@@ -26,7 +27,7 @@ public interface Message {
 
     MessageStatus getStatus();
 
-    // TODO: attachments
+    List<Attachment> getAttachments();
 
-    // TODO: MessageData
+    List<MessageData> getMessageData();
 }

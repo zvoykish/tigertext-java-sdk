@@ -23,7 +23,7 @@ import java.util.Map;
  * Created by Zvika on 1/28/15.
  */
 public class MessageSdkImpl extends BaseSdk implements MessageSdk {
-    private static final String MESSAGE_API = BASE_URL + "/v1/message/";
+    private static final String MESSAGE_API = BASE_URL + "/v2/message/";
 
     public MessageSdkImpl(Credentials credentials) {
         super(credentials);
@@ -63,7 +63,7 @@ public class MessageSdkImpl extends BaseSdk implements MessageSdk {
                     HttpEntity entity = response.getEntity();
                     String body = EntityUtils.toString(entity);
                     JsonNode node = new ObjectMapper().readTree(body);
-                    ObjectNode replyNode = (ObjectNode) node.get("tigertext_api").get("reply");
+                    ObjectNode replyNode = (ObjectNode) node.get("reply");
                     return MessageBuilder.fromJson(replyNode);
                 default:
                     log.error("Unexpected status code: " + statusCode);
