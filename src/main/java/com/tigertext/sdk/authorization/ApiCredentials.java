@@ -19,4 +19,12 @@ public class ApiCredentials implements Credentials {
         String authStr = key + ":" + secret;
         return "Basic " + new BASE64Encoder().encode(authStr.getBytes());
     }
+
+    public String getKey() {
+        return key;
+    }
+
+    public String getSecret() {
+        return secret;
+    }
 }
