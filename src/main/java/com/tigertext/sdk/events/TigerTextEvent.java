@@ -7,6 +7,13 @@ import org.codehaus.jackson.JsonNode;
  */
 public interface TigerTextEvent {
     /**
+     * Returns the event ID
+     *
+     * @return The event ID
+     */
+    String getId();
+
+    /**
      * Returns the event type
      *
      * @return The event type

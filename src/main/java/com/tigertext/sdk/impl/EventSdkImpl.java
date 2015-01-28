@@ -63,11 +63,12 @@ public class EventSdkImpl extends BaseSdk implements EventSdk {
                 String eventData = inboundEvent.readData();
                 try {
                     JsonNode eventJson = new ObjectMapper().readTree(eventData);
+                    String eventId = eventJson.get("event_id").asText();
                     JsonNode events = eventJson.get("event");
                     Iterator<Map.Entry<String, JsonNode>> it = events.getFields();
                     while (it.hasNext()) {
                         Map.Entry<String, JsonNode> currEvent = it.next();
-                        TigerTextEvent event = new TigerTextEventImpl(currEvent.getKey(), currEvent.getValue());
+                        TigerTextEvent event = new TigerTextEventImpl(eventId, currEvent.getKey(), currEvent.getValue());
                         handler.onEvent(event, sdk);
                     }
                 } catch (IOException e) {

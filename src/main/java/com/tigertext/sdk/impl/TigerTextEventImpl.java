@@ -7,12 +7,19 @@ import org.codehaus.jackson.JsonNode;
  * Created by Zvika on 1/28/15.
  */
 public class TigerTextEventImpl implements TigerTextEvent {
+    private String id;
     private String type;
     private JsonNode content;
 
-    public TigerTextEventImpl(String type, JsonNode content) {
+    public TigerTextEventImpl(String id, String type, JsonNode content) {
+        this.id = id;
         this.type = type;
         this.content = content;
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 
     @Override
@@ -33,6 +40,7 @@ public class TigerTextEventImpl implements TigerTextEvent {
         TigerTextEventImpl that = (TigerTextEventImpl) o;
 
         if (content != null ? !content.equals(that.content) : that.content != null) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (type != null ? !type.equals(that.type) : that.type != null) return false;
 
         return true;
@@ -40,7 +48,8 @@ public class TigerTextEventImpl implements TigerTextEvent {
 
     @Override
     public int hashCode() {
-        int result = type != null ? type.hashCode() : 0;
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (type != null ? type.hashCode() : 0);
         result = 31 * result + (content != null ? content.hashCode() : 0);
         return result;
     }
@@ -48,7 +57,8 @@ public class TigerTextEventImpl implements TigerTextEvent {
     @Override
     public String toString() {
         return "TigerTextEventImpl{" +
-                "type='" + type + '\'' +
+                "id='" + id + '\'' +
+                ", type='" + type + '\'' +
                 ", content=" + content +
                 '}';
     }
