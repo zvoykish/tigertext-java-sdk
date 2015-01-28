@@ -2,6 +2,8 @@ package com.tigertext.sdk;
 
 import com.tigertext.sdk.events.EventHandler;
 
+import java.util.List;
+
 /**
  * Created by Zvika on 1/28/15.
  */
@@ -31,6 +33,22 @@ public interface EventSdk {
      * Disconnects from the SSE endpoint and drops any open connection
      */
     void disconnect();
+
+    /**
+     * Manually ack the given event
+     *
+     * @param eventId The event ID
+     * @see com.tigertext.sdk.EventSdk.Feature#AUTO_ACK
+     */
+    void ack(String eventId);
+
+    /**
+     * Manually ack the given events
+     *
+     * @param eventIds The event ID
+     * @see com.tigertext.sdk.EventSdk.Feature#AUTO_ACK
+     */
+    void ack(List<String> eventIds);
 
     /**
      * Enable the given Event SDK feature

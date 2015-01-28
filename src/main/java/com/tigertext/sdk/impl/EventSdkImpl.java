@@ -6,10 +6,13 @@ import com.tigertext.sdk.authorization.ApiCredentials;
 import com.tigertext.sdk.authorization.Credentials;
 import com.tigertext.sdk.events.EventHandler;
 import com.tigertext.sdk.events.TigerTextEvent;
+import jersey.repackaged.com.google.common.collect.Lists;
+import jersey.repackaged.com.google.common.collect.Maps;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.JsonNode;
@@ -24,10 +27,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -105,6 +105,32 @@ public class EventSdkImpl extends BaseSdk implements EventSdk {
     }
 
     @Override
+    public void ack(String eventId) {
+        ack(Lists.newArrayList(eventId));
+    }
+
+    @Override
+    public void ack(List<String> eventIds) {
+        Map<String, String> body = Maps.newHashMap();
+        body.put("events", commaSeperatedList(eventIds));
+        try {
+            HttpPost request = createPostRequest(EVENTS_API + "ack/", body);
+
+            CloseableHttpResponse response = HttpClientBuilder.create().build().execute(request);
+            int statusCode = response.getStatusLine().getStatusCode();
+            switch (statusCode) {
+                case HttpStatus.SC_NO_CONTENT:
+                    // All good...
+                    break;
+                default:
+                    log.error("Unexpected status code: " + statusCode);
+            }
+        } catch (IOException e) {
+            log.error("Failed ack'ing events: " + eventIds, e);
+        }
+    }
+
+    @Override
     public EventSdk enable(Feature feature) {
         features.add(feature);
         return this;
@@ -148,9 +174,18 @@ public class EventSdkImpl extends BaseSdk implements EventSdk {
                 }
                 sb.append(feature.getHeaderValue());
             }
-            if (sb.length() > 0) {
-                invocationBuilder.header("TT-X-Features", sb.toString());
-            }
+            invocationBuilder.header("TT-X-Features", sb.toString());
         }
+    }
+
+    private String commaSeperatedList(Collection<String> eventIds) {
+        StringBuilder sb = new StringBuilder();
+        for (String id : eventIds) {
+            if (sb.length() > 0) {
+                sb.append(",");
+            }
+            sb.append(id);
+        }
+        return sb.toString();
     }
 }
