@@ -1,5 +1,7 @@
 package com.tigertext.sdk;
 
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.util.Properties;
 
@@ -7,6 +9,7 @@ import java.util.Properties;
  * Created by Zvika on 1/27/15.
  */
 public class TigerTextConfiguration {
+    private static final Logger log = Logger.getLogger(TigerTextConfiguration.class);
     private static Properties properties;
 
     public static String getApiKey() {
@@ -58,7 +61,7 @@ public class TigerTextConfiguration {
                         return true;
                     } catch (IOException e) {
                         properties = null;
-                        e.printStackTrace();
+                        log.error("Failed reading TigerText configuration", e);
                     }
                 }
             }

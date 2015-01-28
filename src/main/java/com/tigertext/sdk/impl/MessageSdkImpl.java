@@ -15,7 +15,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,7 +44,7 @@ public class MessageSdkImpl extends BaseSdk implements MessageSdk {
                     log.error("Unexpected status code: " + statusCode);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed sending message to: " + recipient, e);
         }
 
         return null;
@@ -68,10 +67,8 @@ public class MessageSdkImpl extends BaseSdk implements MessageSdk {
                 default:
                     log.error("Unexpected status code: " + statusCode);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.error("Failed loading message with ID: " + messageId, e);
         }
 
         return null;

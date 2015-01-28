@@ -40,7 +40,7 @@ public class UserSdkImpl extends BaseSdk implements UserSdk {
                     log.error("Unexpected status code: " + statusCode);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed reading user with identifier: " + identifier);
         }
 
         return null;

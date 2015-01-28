@@ -15,17 +15,21 @@ import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-import org.glassfish.jersey.media.sse.EventListener;
-import org.glassfish.jersey.media.sse.EventSource;
+import org.glassfish.jersey.media.sse.EventInput;
 import org.glassfish.jersey.media.sse.InboundEvent;
 import org.glassfish.jersey.media.sse.SseFeature;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by Zvika on 1/28/15.
@@ -34,20 +38,19 @@ public class EventSdkImpl extends BaseSdk implements EventSdk {
     private static final String EVENTS_API = BASE_URL + "/v2/events/";
 
     private Client client;
-    private EventSource eventSource;
     private TigerTextSdk sdk;
+    private Set<Feature> features;
+    private ExecutorService executor;
 
     public EventSdkImpl(Credentials credentials, TigerTextSdk sdk) {
         super(credentials);
         this.sdk = sdk;
+        this.features = new HashSet<Feature>();
     }
 
     @Override
     public void connect(final EventHandler handler) {
-        if (eventSource != null) {
-            throw new IllegalStateException("Event handler already registered, unregister first...");
-        }
-
+        executor = Executors.newSingleThreadExecutor();
         if (!(credentials instanceof ApiCredentials)) {
             throw new IllegalArgumentException("Please use ApiCredentials for consuming events from API");
         }
@@ -56,41 +59,61 @@ public class EventSdkImpl extends BaseSdk implements EventSdk {
         HttpAuthenticationFeature authenticationFeature = HttpAuthenticationFeature.basic(c.getKey(), c.getSecret());
         client = ClientBuilder.newBuilder().register(SseFeature.class).register(authenticationFeature).build();
         WebTarget target = client.target(EVENTS_API);
-        eventSource = EventSource.target(target).build();
-        EventListener listener = new EventListener() {
+        Invocation.Builder invocationBuilder = target.request();
+
+        // Add features header if any feature was enabled
+        applyFeatures(invocationBuilder);
+
+        // Send the GET request and start reading async...
+        final EventInput eventInput = invocationBuilder.get(EventInput.class);
+        executor.execute(new Runnable() {
             @Override
-            public void onEvent(InboundEvent inboundEvent) {
-                String eventData = inboundEvent.readData();
-                try {
-                    JsonNode eventJson = new ObjectMapper().readTree(eventData);
-                    String eventId = eventJson.get("event_id").asText();
-                    JsonNode events = eventJson.get("event");
-                    Iterator<Map.Entry<String, JsonNode>> it = events.getFields();
-                    while (it.hasNext()) {
-                        Map.Entry<String, JsonNode> currEvent = it.next();
-                        TigerTextEvent event = new TigerTextEventImpl(eventId, currEvent.getKey(), currEvent.getValue());
-                        handler.onEvent(event, sdk);
+            public void run() {
+                while (!eventInput.isClosed()) {
+                    final InboundEvent inboundEvent = eventInput.read();
+                    if (inboundEvent == null) {
+                        // connection has been closed
+                        break;
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
+
+                    String eventData = inboundEvent.readData();
+                    try {
+                        JsonNode eventJson = new ObjectMapper().readTree(eventData);
+                        String eventId = eventJson.get("event_id").asText();
+                        JsonNode events = eventJson.get("event");
+                        Iterator<Map.Entry<String, JsonNode>> it = events.getFields();
+                        while (it.hasNext()) {
+                            Map.Entry<String, JsonNode> currEvent = it.next();
+                            TigerTextEvent event = new TigerTextEventImpl(eventId, currEvent.getKey(), currEvent.getValue());
+                            handler.onEvent(event, sdk);
+                        }
+                    } catch (IOException e) {
+                        log.error("Failed handling SSE event: " + eventData, e);
+                    }
                 }
             }
-        };
-        eventSource.register(listener);
-        eventSource.open();
+        });
     }
 
     @Override
     public void disconnect() {
-        if (eventSource == null) {
-            throw new IllegalStateException("Event handler not registered");
-        }
-
-        eventSource.close();
-        eventSource = null;
         client.close();
         client = null;
         disconnectEventStream();
+        executor.shutdown();
+        executor = null;
+    }
+
+    @Override
+    public EventSdk enable(Feature feature) {
+        features.add(feature);
+        return this;
+    }
+
+    @Override
+    public EventSdk disable(Feature feature) {
+        features.remove(feature);
+        return this;
     }
 
     private boolean disconnectEventStream() {
@@ -110,9 +133,24 @@ public class EventSdkImpl extends BaseSdk implements EventSdk {
                     log.error("Unexpected status code: " + statusCode);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed disconnecting SSE connection", e);
         }
 
         return false;
+    }
+
+    private void applyFeatures(Invocation.Builder invocationBuilder) {
+        if (!features.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (Feature feature : features) {
+                if (sb.length() > 0) {
+                    sb.append(",");
+                }
+                sb.append(feature.getHeaderValue());
+            }
+            if (sb.length() > 0) {
+                invocationBuilder.header("TT-X-Features", sb.toString());
+            }
+        }
     }
 }
