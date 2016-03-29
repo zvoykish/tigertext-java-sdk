@@ -6,9 +6,9 @@ import com.tigertext.sdk.entities.MessageData;
  * Created by Zvika on 1/28/15.
  */
 public class MessageDataImpl implements MessageData {
-    private String mimeType;
-    private String namespace;
-    private String payload;
+    private final String mimeType;
+    private final String namespace;
+    private final String payload;
 
     public MessageDataImpl(String mimeType, String namespace, String payload) {
         this.mimeType = mimeType;

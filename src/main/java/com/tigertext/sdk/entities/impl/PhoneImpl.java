@@ -6,8 +6,8 @@ import com.tigertext.sdk.entities.Phone;
  * Created by Zvika on 1/27/15.
  */
 public class PhoneImpl implements Phone {
-    private String number;
-    private boolean verified;
+    private final String number;
+    private final boolean verified;
 
     public PhoneImpl(String number, boolean verified) {
         this.number = number;

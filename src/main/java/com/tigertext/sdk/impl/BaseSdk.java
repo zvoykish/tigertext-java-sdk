@@ -16,29 +16,29 @@ import java.util.Map;
 /**
  * Created by Zvika on 1/28/15.
  */
-public abstract class BaseSdk {
-    protected static final String BASE_URL = TigerTextConfiguration.getApiServerUrl() + ":" + TigerTextConfiguration.getApiServerPort();
-    protected Logger log = Logger.getLogger(getClass());
+abstract class BaseSdk {
+    static final String BASE_URL = TigerTextConfiguration.getApiServerUrl() + ":" + TigerTextConfiguration.getApiServerPort();
 
-    protected Credentials credentials;
+    final Logger log = Logger.getLogger(getClass());
+    final Credentials credentials;
 
-    protected BaseSdk(Credentials credentials) {
+    BaseSdk(Credentials credentials) {
         this.credentials = credentials;
     }
 
-    protected HttpGet createGetRequest(String url) {
+    HttpGet createGetRequest(String url) {
         HttpGet request = new HttpGet(url);
         request.addHeader("Authorization", credentials.getAuthorization());
         return request;
     }
 
-    protected HttpDelete createDeleteRequest(String url) {
+    HttpDelete createDeleteRequest(String url) {
         HttpDelete request = new HttpDelete(url);
         request.addHeader("Authorization", credentials.getAuthorization());
         return request;
     }
 
-    protected HttpPost createPostRequest(String url, Map<String, String> body) throws IOException {
+    HttpPost createPostRequest(String url, Map<String, String> body) throws IOException {
         HttpPost request = new HttpPost(url);
         request.addHeader("Authorization", credentials.getAuthorization());
         request.addHeader("Content-Type", ContentType.APPLICATION_JSON.toString());

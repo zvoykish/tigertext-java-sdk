@@ -9,16 +9,16 @@ import java.util.List;
  * Created by Zvika on 1/27/15.
  */
 public class UserImpl implements User {
-    private String token;
-    private String status;
-    private String firstName;
-    private String lastName;
-    private String displayName;
-    private String username;
-    private String avatarUrl;
-    private List<Email> emailAddresses;
-    private Boolean dnd;
-    private String dndMessage;
+    private final String token;
+    private final String status;
+    private final String firstName;
+    private final String lastName;
+    private final String displayName;
+    private final String username;
+    private final String avatarUrl;
+    private final List<Email> emailAddresses;
+    private final Boolean dnd;
+    private final String dndMessage;
 
     public UserImpl(String token, String status, String firstName, String lastName, String displayName, String username,
                     String avatarUrl, List<Email> emailAddresses, Boolean dnd, String dndMessage) {

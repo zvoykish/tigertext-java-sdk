@@ -12,18 +12,18 @@ import java.util.List;
  * Created by Zvika on 1/27/15.
  */
 public class MessageImpl implements Message {
-    private String id;
-    private String sender;
-    private String senderOrganization;
-    private String recipient;
-    private String recipientOrganization;
-    private Date creationTime;
-    private String body;
-    private int ttl;
-    private boolean dor;
-    private MessageStatus status;
-    private List<Attachment> attachments;
-    private List<MessageData> messageData;
+    private final String id;
+    private final String sender;
+    private final String senderOrganization;
+    private final String recipient;
+    private final String recipientOrganization;
+    private final Date creationTime;
+    private final String body;
+    private final int ttl;
+    private final boolean dor;
+    private final MessageStatus status;
+    private final List<Attachment> attachments;
+    private final List<MessageData> messageData;
 
     public MessageImpl(String id, String sender, String senderOrganization, String recipient, String recipientOrganization,
                        Date creationTime, String body, int ttl, boolean dor, MessageStatus status,

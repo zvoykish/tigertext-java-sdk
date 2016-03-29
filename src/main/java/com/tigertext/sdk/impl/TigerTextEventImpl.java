@@ -6,12 +6,12 @@ import org.codehaus.jackson.JsonNode;
 /**
  * Created by Zvika on 1/28/15.
  */
-public class TigerTextEventImpl implements TigerTextEvent {
-    private String id;
-    private String type;
-    private JsonNode content;
+class TigerTextEventImpl implements TigerTextEvent {
+    private final String id;
+    private final String type;
+    private final JsonNode content;
 
-    public TigerTextEventImpl(String id, String type, JsonNode content) {
+    TigerTextEventImpl(String id, String type, JsonNode content) {
         this.id = id;
         this.type = type;
         this.content = content;

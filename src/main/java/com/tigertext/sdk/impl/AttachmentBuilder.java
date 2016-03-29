@@ -7,8 +7,8 @@ import org.codehaus.jackson.node.ObjectNode;
 /**
  * Created by Zvika on 1/28/15.
  */
-public class AttachmentBuilder {
-    public static Attachment fromJson(ObjectNode node) {
+class AttachmentBuilder {
+    static Attachment fromJson(ObjectNode node) {
         String contentType = node.path("content-type").asText();
         long size = node.path("size").asLong();
         String attachmentId = node.path("attachment_id").asText();

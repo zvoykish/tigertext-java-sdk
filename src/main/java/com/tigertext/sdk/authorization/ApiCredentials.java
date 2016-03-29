@@ -6,8 +6,8 @@ import org.apache.commons.codec.binary.Base64;
  * Created by Zvika on 1/27/15.
  */
 public class ApiCredentials implements Credentials {
-    private String key;
-    private String secret;
+    private final String key;
+    private final String secret;
 
     public ApiCredentials(String key, String secret) {
         this.key = key;

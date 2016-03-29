@@ -38,8 +38,8 @@ class EventSdkImpl extends BaseSdk implements EventSdk {
     private static final String EVENTS_API = BASE_URL + "/v2/events/";
 
     private Client client;
-    private TigerTextSdk sdk;
-    private Set<Feature> features;
+    private final TigerTextSdk sdk;
+    private final Set<Feature> features;
     private ExecutorService executor;
 
     EventSdkImpl(Credentials credentials, TigerTextSdk sdk) {
@@ -102,7 +102,9 @@ class EventSdkImpl extends BaseSdk implements EventSdk {
     public void disconnect() {
         client.close();
         client = null;
-        disconnectEventStream();
+        if (disconnectEventStream()) {
+            log.warn("Dropped connection(s) which disconnecting from event stream");
+        }
         executor.shutdown();
         executor = null;
     }

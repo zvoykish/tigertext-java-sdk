@@ -6,8 +6,8 @@ import com.tigertext.sdk.entities.Email;
  * Created by Zvika on 1/27/15.
  */
 public class EmailImpl implements Email {
-    private String address;
-    private boolean verified;
+    private final String address;
+    private final boolean verified;
 
     public EmailImpl(String address, boolean verified) {
         this.address = address;

@@ -6,9 +6,9 @@ import com.tigertext.sdk.entities.Attachment;
  * Created by Zvika on 1/28/15.
  */
 public class AttachmentImpl implements Attachment {
-    private String contentType;
-    private long size;
-    private String attachmentId;
+    private final String contentType;
+    private final long size;
+    private final String attachmentId;
 
     public AttachmentImpl(String contentType, long size, String attachmentId) {
         this.contentType = contentType;

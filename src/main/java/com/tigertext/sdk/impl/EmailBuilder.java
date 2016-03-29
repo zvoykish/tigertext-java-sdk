@@ -7,8 +7,8 @@ import org.codehaus.jackson.node.ObjectNode;
 /**
  * Created by Zvika on 1/27/15.
  */
-public class EmailBuilder {
-    public static Email fromJson(ObjectNode node) {
+class EmailBuilder {
+    static Email fromJson(ObjectNode node) {
         String address = node.path("address").asText();
         boolean verified = node.path("verified").asBoolean();
         return new EmailImpl(address, verified);

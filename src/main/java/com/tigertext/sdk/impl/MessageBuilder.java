@@ -18,8 +18,8 @@ import java.util.List;
 /**
  * Created by Zvika on 1/27/15.
  */
-public class MessageBuilder {
-    public static Message fromJson(ObjectNode node) throws ParseException {
+class MessageBuilder {
+    static Message fromJson(ObjectNode node) throws ParseException {
         String messageId = node.path("message_id").asText();
         String senderToken = node.path("sender_token").asText();
         String senderOrganization = node.path("sender_organization").asText();
@@ -33,12 +33,12 @@ public class MessageBuilder {
         boolean dor = node.path("dor").asBoolean();
         MessageStatus status = MessageStatus.valueOf(node.path("status").asText());
 
-        List<Attachment> attachments = new ArrayList<Attachment>();
+        List<Attachment> attachments = new ArrayList<>();
         for (JsonNode attachmentNode : node.path("attachments")) {
             attachments.add(AttachmentBuilder.fromJson((ObjectNode) attachmentNode));
         }
 
-        List<MessageData> messageData = new ArrayList<MessageData>();
+        List<MessageData> messageData = new ArrayList<>();
         for (JsonNode dataNode : node.path("data")) {
             messageData.add(MessageDataBuilder.fromJson((ObjectNode) dataNode));
         }

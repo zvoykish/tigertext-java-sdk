@@ -11,7 +11,7 @@ public interface EventSdk {
     public enum Feature {
         AUTO_ACK("auto-ack"), AUTO_DELIVER("auto-deliver");
 
-        private String headerValue;
+        private final String headerValue;
 
         private Feature(String headerValue) {
             this.headerValue = headerValue;

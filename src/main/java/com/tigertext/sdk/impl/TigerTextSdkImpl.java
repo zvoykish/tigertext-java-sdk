@@ -10,9 +10,9 @@ import com.tigertext.sdk.authorization.Credentials;
  * Created by Zvika on 1/27/15.
  */
 public class TigerTextSdkImpl extends BaseSdk implements TigerTextSdk {
-    private UserSdk userSdk;
-    private MessageSdk messageSdk;
-    private EventSdk eventSdk;
+    private final UserSdk userSdk;
+    private final MessageSdk messageSdk;
+    private final EventSdk eventSdk;
 
     public TigerTextSdkImpl(Credentials credentials) {
         super(credentials);
