@@ -21,7 +21,7 @@ public class TigerTextConfiguration {
     }
 
     public static String getApiServerUrl() {
-        return get("tigertext.api.server.url", "https://api.tigertext.me");
+        return get("tigertext.api.server.url", "https://developer.tigertext.me");
     }
 
     public static int getApiServerPort() {

@@ -34,7 +34,7 @@ import java.util.concurrent.Executors;
 /**
  * Created by Zvika on 1/28/15.
  */
-public class EventSdkImpl extends BaseSdk implements EventSdk {
+class EventSdkImpl extends BaseSdk implements EventSdk {
     private static final String EVENTS_API = BASE_URL + "/v2/events/";
 
     private Client client;
@@ -42,13 +42,12 @@ public class EventSdkImpl extends BaseSdk implements EventSdk {
     private Set<Feature> features;
     private ExecutorService executor;
 
-    public EventSdkImpl(Credentials credentials, TigerTextSdk sdk) {
+    EventSdkImpl(Credentials credentials, TigerTextSdk sdk) {
         super(credentials);
         this.sdk = sdk;
-        this.features = new HashSet<Feature>();
+        this.features = new HashSet<>();
     }
 
-    @Override
     public void connect(final EventHandler handler) {
         executor = Executors.newSingleThreadExecutor();
         if (!(credentials instanceof ApiCredentials)) {
@@ -66,36 +65,40 @@ public class EventSdkImpl extends BaseSdk implements EventSdk {
 
         // Send the GET request and start reading async...
         final EventInput eventInput = invocationBuilder.get(EventInput.class);
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                while (!eventInput.isClosed()) {
-                    final InboundEvent inboundEvent = eventInput.read();
-                    if (inboundEvent == null) {
-                        // connection has been closed
-                        break;
-                    }
+        executor.execute(() -> {
+            while (!eventInput.isClosed()) {
+                InboundEvent inboundEvent = null;
+                try {
+                    inboundEvent = eventInput.read();
+                } catch (IllegalStateException e) {
+                    log.warn("SDK event read failed (probably due to shutdown): " + e.getMessage());
+                } catch (Exception e) {
+                    log.error("SDK event read failed: " + e.getMessage());
+                }
 
-                    String eventData = inboundEvent.readData();
-                    try {
-                        JsonNode eventJson = new ObjectMapper().readTree(eventData);
-                        String eventId = eventJson.get("event_id").asText();
-                        JsonNode events = eventJson.get("event");
-                        Iterator<Map.Entry<String, JsonNode>> it = events.getFields();
-                        while (it.hasNext()) {
-                            Map.Entry<String, JsonNode> currEvent = it.next();
-                            TigerTextEvent event = new TigerTextEventImpl(eventId, currEvent.getKey(), currEvent.getValue());
-                            handler.onEvent(event, sdk);
-                        }
-                    } catch (IOException e) {
-                        log.error("Failed handling SSE event: " + eventData, e);
+                if (inboundEvent == null) {
+                    // connection has been closed
+                    break;
+                }
+
+                String eventData = inboundEvent.readData();
+                try {
+                    JsonNode eventJson = new ObjectMapper().readTree(eventData);
+                    String eventId = eventJson.get("event_id").asText();
+                    JsonNode events = eventJson.get("event");
+                    Iterator<Map.Entry<String, JsonNode>> it = events.getFields();
+                    while (it.hasNext()) {
+                        Map.Entry<String, JsonNode> currEvent = it.next();
+                        TigerTextEvent event = new TigerTextEventImpl(eventId, currEvent.getKey(), currEvent.getValue());
+                        handler.onEvent(event, sdk);
                     }
+                } catch (IOException e) {
+                    log.error("Failed handling SSE event: " + eventData, e);
                 }
             }
         });
     }
 
-    @Override
     public void disconnect() {
         client.close();
         client = null;
@@ -104,12 +107,10 @@ public class EventSdkImpl extends BaseSdk implements EventSdk {
         executor = null;
     }
 
-    @Override
     public void ack(String eventId) {
         ack(Lists.newArrayList(eventId));
     }
 
-    @Override
     public void ack(List<String> eventIds) {
         Map<String, String> body = Maps.newHashMap();
         body.put("events", commaSeperatedList(eventIds));
@@ -123,20 +124,18 @@ public class EventSdkImpl extends BaseSdk implements EventSdk {
                     // All good...
                     break;
                 default:
-                    log.error("Unexpected status code: " + statusCode);
+                    log.error("Unexpected status code: " + statusCode + ". Response: " + response);
             }
         } catch (IOException e) {
             log.error("Failed ack'ing events: " + eventIds, e);
         }
     }
 
-    @Override
     public EventSdk enable(Feature feature) {
         features.add(feature);
         return this;
     }
 
-    @Override
     public EventSdk disable(Feature feature) {
         features.remove(feature);
         return this;
@@ -156,7 +155,7 @@ public class EventSdkImpl extends BaseSdk implements EventSdk {
                     log.info("Disconnected " + dropCount + " connection(s)");
                     return dropCount > 0;
                 default:
-                    log.error("Unexpected status code: " + statusCode);
+                    log.error("Unexpected status code: " + statusCode + ". Response: " + response);
             }
         } catch (IOException e) {
             log.error("Failed disconnecting SSE connection", e);

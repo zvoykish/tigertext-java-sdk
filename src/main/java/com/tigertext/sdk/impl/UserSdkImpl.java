@@ -17,10 +17,10 @@ import java.io.IOException;
 /**
  * Created by Zvika on 1/28/15.
  */
-public class UserSdkImpl extends BaseSdk implements UserSdk {
+class UserSdkImpl extends BaseSdk implements UserSdk {
     private static final String USERS_API = BASE_URL + "/v2/user/";
 
-    public UserSdkImpl(Credentials credentials) {
+    UserSdkImpl(Credentials credentials) {
         super(credentials);
     }
 
@@ -37,7 +37,7 @@ public class UserSdkImpl extends BaseSdk implements UserSdk {
                     ObjectNode replyNode = (ObjectNode) node.get("reply");
                     return UserBuilder.fromJson(replyNode);
                 default:
-                    log.error("Unexpected status code: " + statusCode);
+                    log.error("Unexpected status code: " + statusCode + ". Response: " + response);
             }
         } catch (IOException e) {
             log.error("Failed reading user with identifier: " + identifier);

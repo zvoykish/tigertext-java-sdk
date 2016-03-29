@@ -21,17 +21,17 @@ import java.util.Map;
 /**
  * Created by Zvika on 1/28/15.
  */
-public class MessageSdkImpl extends BaseSdk implements MessageSdk {
+class MessageSdkImpl extends BaseSdk implements MessageSdk {
     private static final String MESSAGE_API = BASE_URL + "/v2/message/";
 
-    public MessageSdkImpl(Credentials credentials) {
+    MessageSdkImpl(Credentials credentials) {
         super(credentials);
     }
 
     @Override
     public String send(String body, String recipient) {
         try {
-            Map<String, String> params = new HashMap<String, String>();
+            Map<String, String> params = new HashMap<>();
             params.put("body", body);
             params.put("recipient", recipient);
             HttpPost request = createPostRequest(MESSAGE_API, params);
@@ -41,7 +41,7 @@ public class MessageSdkImpl extends BaseSdk implements MessageSdk {
                 case HttpStatus.SC_NO_CONTENT:
                     return response.getFirstHeader("TT-X-Message-Id").getValue();
                 default:
-                    log.error("Unexpected status code: " + statusCode);
+                    log.error("Unexpected status code: " + statusCode + ". Response: " + response);
             }
         } catch (IOException e) {
             log.error("Failed sending message to: " + recipient, e);
@@ -65,7 +65,7 @@ public class MessageSdkImpl extends BaseSdk implements MessageSdk {
                     ObjectNode replyNode = (ObjectNode) node.get("reply");
                     return MessageBuilder.fromJson(replyNode);
                 default:
-                    log.error("Unexpected status code: " + statusCode);
+                    log.error("Unexpected status code: " + statusCode + ". Response: " + response);
             }
         } catch (Exception e) {
             log.error("Failed loading message with ID: " + messageId, e);

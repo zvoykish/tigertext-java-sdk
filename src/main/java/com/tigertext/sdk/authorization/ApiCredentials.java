@@ -1,6 +1,6 @@
 package com.tigertext.sdk.authorization;
 
-import sun.misc.BASE64Encoder;
+import org.apache.commons.codec.binary.Base64;
 
 /**
  * Created by Zvika on 1/27/15.
@@ -17,7 +17,7 @@ public class ApiCredentials implements Credentials {
     @Override
     public String getAuthorization() {
         String authStr = key + ":" + secret;
-        return "Basic " + new BASE64Encoder().encode(authStr.getBytes());
+        return "Basic " + Base64.encodeBase64String(authStr.getBytes());
     }
 
     public String getKey() {
